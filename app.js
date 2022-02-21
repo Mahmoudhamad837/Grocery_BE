@@ -16,8 +16,15 @@ const contacts = require('./routes/contact');
 const auth = require('./routes/auth');
 const app = express();
 
+var whitelist = ['http://localhost:4200', 'http://localhost:5200']
 var corsOptions = {
-    origin: 'http://localhost:4200'
+    origin: function (origin, callback) {
+        if (whitelist.indexOf(origin) !== -1 || !origin) {
+          callback(null, true)
+        } else {
+          callback(new Error('Not allowed by CORS'))
+        }
+      }
 }
 
 app.use(express.json());
