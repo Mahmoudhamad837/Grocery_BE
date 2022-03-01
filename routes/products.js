@@ -26,7 +26,7 @@ router.get('/:id', asyncMiddleware(async (req, res, next) => {
     if (!product) {
         throw new ApiError('Invalid Id', HttpStatusCode.INTERNAL_SERVER_ERROR, 'Invalid Id', true);
     }
-    const reviews = await Review.find({product: req.params.id}).select('-product -__v');
+    const reviews = await Review.find({product: req.params.id}).populate('user').select('-product -__v');
     const relatedProducts = await Product.find({category: product.category._id}).skip(0).limit(5);
     const index = relatedProducts.findIndex(prod=>prod._id == product._id.toString());
     relatedProducts.splice(index, 1);

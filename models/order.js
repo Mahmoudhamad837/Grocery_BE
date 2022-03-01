@@ -38,6 +38,11 @@ const orderSchema = new mongoose.Schema({
     stripeToken: {
         type: String,
         required: true
+    },
+    paymentMethod:{
+        type: String,
+        required: true,
+        enum:['cod', 'online']
     }
 });
 
@@ -54,7 +59,8 @@ function validateOrder(order){
         user: Joi.objectId(),
         address: Joi.objectId().required(),
         stripeToken: Joi.string().required(),
-        status: Joi.string()
+        status: Joi.string(),
+        paymentMethod: Joi.string().required().valid('cod','online')
     });
 
     return schema.validate(order);

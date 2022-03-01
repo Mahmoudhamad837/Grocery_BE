@@ -4,6 +4,7 @@ const { Review, validateReview } = require('../models/review');
 const { Product } = require('../models/product');
 const ApiError = require('../Exceptions/api.error');
 const HttpStatusCode = require('../Exceptions/error.status');
+const auth = require('../middleware/auth');
 const router = express.Router();
 
 router.get('/:id', asyncMiddleware(async(req, res, next)=>{
@@ -15,7 +16,7 @@ router.get('/:id', asyncMiddleware(async(req, res, next)=>{
     res.send({'reviews': result})
 }));
 
-router.post('/', asyncMiddleware(async(req, res, next)=>{
+router.post('/', auth, asyncMiddleware(async(req, res, next)=>{
     const { error } = validateReview(req.body);
     if(error){
         throw new ApiError('Invalid Data', HttpStatusCode.BAD_REQUEST, error.message, true);
@@ -26,6 +27,7 @@ router.post('/', asyncMiddleware(async(req, res, next)=>{
     }
 
     const review = new Review(req.body);
+    review.user = req.user._id;
     await review.save();
     res.send({'message': 'Review Created Successfully'});
 }));
