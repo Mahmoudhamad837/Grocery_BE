@@ -13,7 +13,7 @@ router.get('/', auth, asyncMiddleware(async(req, res, next)=>{
     if(!user){
         throw new ApiError('Invalid User', HttpStatusCode.BAD_REQUEST, 'Please Login Again', true);
     }
-    const notifications = await Notification.find({user: req.user._id});
+    const notifications = await Notification.find({user: req.user._id}).populate('user', '-_id -__v -password -verifyCode -role -isVerified');
     res.json({'notifications': notifications});
 }));
 

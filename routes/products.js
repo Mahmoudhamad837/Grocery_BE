@@ -11,7 +11,7 @@ const { Review } = require('../models/review');
 const { ceil } = require('lodash');
 const socket = require('../socket');
 const router = express.Router();
-const Items_Per_Page = 10;
+const Items_Per_Page = 2;
 const filters = ['category', 'price', 'search'];
 // router.get('/', async(req, res, next)=>{
 //     console.log('All Products');
@@ -41,7 +41,7 @@ router.get('/', asyncMiddleware(async (req, res, next) => {
     console.log('Queries:- ', filters);
     if (Object.keys(filters).length > 0) {
         if(filters.category){
-            const category = await Category.findOne({'title.en': filters.category});
+            const category = await Category.findById(filters.category);
             if(!category){
                 throw new ApiError('Invalid Data', HttpStatusCode.BAD_REQUEST, 'No Such a Category', true);
             }
@@ -63,7 +63,9 @@ router.get('/', asyncMiddleware(async (req, res, next) => {
                     next_page: (page < ceil(total/Items_Per_Page))? page + 1: page,
                     prev_page: (page > 1) ? page-1 : page,
                     end_page: ceil(total/Items_Per_Page),
-                    total_pages: ceil(total/Items_Per_Page)
+                    total_pages: ceil(total/Items_Per_Page),
+                    total_records: total,
+                    per_page: Items_Per_Page
                 }
             };
             res.send(data);
@@ -83,7 +85,9 @@ router.get('/', asyncMiddleware(async (req, res, next) => {
                 next_page: (page < ceil(total/Items_Per_Page))? page + 1: page,
                 prev_page: (page > 1) ? page-1 : page,
                 end_page: ceil(total/Items_Per_Page),
-                total_pages: ceil(total/Items_Per_Page)
+                total_pages: ceil(total/Items_Per_Page),
+                total_records: total,
+                per_page: Items_Per_Page
             }
         };
         socket.getIo().emit('products', data);
